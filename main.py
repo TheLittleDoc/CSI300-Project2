@@ -70,7 +70,7 @@ if __name__ == "__main__":
     average_payment_per_transaction = query_average_payment_per_transaction(conn)
     print(average_payment_per_transaction)
     all_payments = query_all_payments(conn)
-    plot_box_graph(all_payments, 'payment_id', 'amount', 'Payment ID', 'Amount', 'All Payments', False)
+    plot_box_graph(all_payments, 'amount', 'amount', 'Payment Amount', 'Payment Amount', 'All Payments')
 
     monthly_revenue = query_monthly_revenue(conn)
     print(monthly_revenue)

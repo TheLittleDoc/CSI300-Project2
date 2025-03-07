@@ -52,6 +52,21 @@ def query_average_payment_per_transaction(conn):
     return pd.read_sql(query, conn)
 
 
+def query_all_payments(conn):
+    """Queries all payments for a box plot
+
+    Written by Ely
+    """
+    query = """
+    SELECT p.amount
+    FROM sakila.payment p
+    LIMIT 2000;
+    """
+
+
+    return pd.read_sql(query, conn)
+
+
 def query_monthly_revenue(conn):
     """Queries the monthly revenue each month
 
