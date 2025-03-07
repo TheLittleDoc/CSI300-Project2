@@ -4,6 +4,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
+#dotenv support
+from dotenv import dotenv_values
+
+# Load environment variables
+env_path = '.env'
+env = dotenv_values(env_path)
+
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -42,7 +49,7 @@ def create_connection():
     return mysql.connector.connect(
         host="localhost",
         user="root",
-        password="park1city",
+        password=env.get("PASSWORD"),
         database="sakila"
     )
 
