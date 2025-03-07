@@ -209,6 +209,79 @@ def query_film_category_ranking(conn, selected_category_name):
 
     return pd.read_sql(query, conn, params=(selected_category_name,))
 
+
+def query_total_revenue_per_store(conn, store_id=0):
+    """Queries the total revenue for a given store
+
+    Selects the city name for each store, the name of the manager, and totals the revenue for each store.
+
+    Written by Ely
+    """
+    if store_id == 0:
+        query = """
+        SELECT c.city, CONCAT(s.first_name, ' ', s.last_name) AS manager_name, SUM(p.amount) AS total_revenue
+        FROM sakila.payment p
+        JOIN sakila.staff s ON p.staff_id = s.staff_id
+        JOIN sakila.store st ON s.store_id = st.store_id
+        JOIN sakila.address a ON st.address_id = a.address_id
+        JOIN sakila.city c ON a.city_id = c.city_id
+        GROUP BY c.city, manager_name
+        LIMIT 2000;
+        """
+        return pd.read_sql(query, conn)
+    else:
+        query = """
+        SELECT c.city, CONCAT(s.first_name, ' ', s.last_name) AS manager_name, SUM(p.amount) AS total_revenue
+        FROM sakila.payment p
+        JOIN sakila.staff s ON p.staff_id = s.staff_id
+        JOIN sakila.store st ON s.store_id = st.store_id
+        JOIN sakila.address a ON st.address_id = a.address_id
+        JOIN sakila.city c ON a.city_id = c.city_id
+        WHERE st.store_id = %s
+        GROUP BY c.city, manager_name
+        LIMIT 2000;
+        
+        """
+
+        return pd.read_sql(query, conn, params=(store_id,))
+
+
+def query_average_payment_per_transaction(conn):
+    """Queries the average payment amount per transaction
+
+    Written by Ely
+    """
+    query = """
+    
+    SELECT AVG(p.amount) as avg_payment
+    FROM sakila.payment p;
+    
+    
+    
+    
+    """
+
+    return pd.read_sql(query, conn)
+
+
+def query_monthly_revenue(conn):
+    """Queries the monthly revenue each month
+
+    Written by Ely
+    :param conn: Feed in the existing connection
+    :return: DataFrame with total monthly revenue over time
+    """
+
+    query="""
+    SELECT DATE_FORMAT(p.payment_date, '%Y-%m') as month, SUM(p.amount) as total_revenue
+    FROM sakila.payment p
+    GROUP BY month
+    ORDER BY month;
+    
+    """
+    return pd.read_sql(query, conn)
+
+
 if __name__ == "__main__":
     conn = create_connection()
 
@@ -238,5 +311,24 @@ if __name__ == "__main__":
 
     film_category_ranking = query_film_category_ranking(conn, "Comedy")
     print(film_category_ranking)
+
+    # Ely's section
+    total_revenue_per_store = query_total_revenue_per_store(conn)
+    print(total_revenue_per_store)
+    # zoom in on y axis to show the difference in revenue
+    # min is 5% below the lowest value and max is 5% above the highest value
+    ymin = total_revenue_per_store['total_revenue'].min() * 0.95
+    ymax = total_revenue_per_store['total_revenue'].max() * 1.05
+    plot_bar_graph(total_revenue_per_store, 'city', 'total_revenue', 'City', 'Total Revenue', 'Total Revenue per Store', True, ymin, ymax)
+
+    average_payment_per_transaction = query_average_payment_per_transaction(conn)
+    print(average_payment_per_transaction)
+    #plot_box_graph(average_payment_per_transaction, 'avg_payment', 'avg_payment', 'Average Payment', 'Average Payment per Transaction', 'Average Payment per Transaction')
+
+    monthly_revenue = query_monthly_revenue(conn)
+    print(monthly_revenue)
+    ymin = 0
+    ymax = monthly_revenue['total_revenue'].max() * 1.5
+    plot_line_graph(monthly_revenue, 'month', 'total_revenue', 'Month', 'Total Revenue', 'Total Revenue per Month', ymin, ymax)
 
     conn.close()
