@@ -91,22 +91,88 @@ def query_june_movie_counts(conn):
     """
     return pd.read_sql(query, conn)
 
+def query_category_rental_counts(conn):
+    """Queries aggregated rental counts for each film category.
+
+    Written by Joseph
+    """
+    query = """
+    SELECT c.name AS category_name, COUNT(r.rental_id) AS total_rentals
+    FROM sakila.category c
+    JOIN sakila.film_category fc ON c.category_id = fc.category_id
+    JOIN sakila.film f ON fc.film_id = f.film_id
+    JOIN sakila.inventory i ON f.film_id = i.film_id
+    JOIN sakila.rental r ON i.inventory_id = r.inventory_id
+    GROUP BY c.name
+    ORDER BY total_rentals DESC;
+    """
+
+    return pd.read_sql(query, conn)
+
+def query_avg_category_rental_rate(conn):
+    """Queries the average rental rate grouped by category
+
+    Written by Joseph
+    """
+    query = """
+    SELECT c.name AS category_name, AVG(f.rental_rate) AS avg_rental_rate 
+    FROM sakila.category c 
+    JOIN sakila.film_category fc ON c.category_id = fc.category_id 
+    JOIN sakila.film f ON fc.film_id = f.film_id 
+    GROUP BY c.name 
+    ORDER BY avg_rental_rate DESC;
+    """
+
+    return pd.read_sql(query, conn)
+
+def query_film_category_ranking(conn, selected_category_name):
+    """Queries ranking of films by rental count within a chosen category
+
+    Written by Joseph
+    """
+    query = """
+    SELECT f.title, COUNT(r.rental_id) AS rental_count 
+    FROM sakila.film f 
+    JOIN sakila.film_category fc ON f.film_id = fc.film_id 
+    JOIN sakila.category c ON fc.category_id = c.category_id 
+    JOIN sakila.inventory i ON f.film_id = i.film_id 
+    JOIN sakila.rental r ON i.inventory_id = r.inventory_id 
+    WHERE c.name = %s
+    GROUP BY f.title 
+    ORDER BY rental_count DESC 
+    LIMIT 5;
+    """
+
+    return pd.read_sql(query, conn, params=(selected_category_name,))
+
 if __name__ == "__main__":
     conn = create_connection()
 
     if conn.is_connected():
         print("Database connection established.")
 
-    data_1 = query_customer_rental_counts(conn)
-    print(data_1.head())
-    plot_bar_graph(data_1, 'first_name', 'purchase_count', 'Customers', 'Rental Count', 'Customer Rental Counts', False)
 
-    data_2 = query_avg_rental_duration(conn)
-    print(data_2.head())
-    plot_bar_graph(data_2, 'first_name', 'avg_hours_rented', 'Customers', 'Avg Hours Rented', 'Avg Hours Rented per Customer', False)
+    # Eddie's section
+    rental_counts = query_customer_rental_counts(conn)
+    print(rental_counts.head())
+    plot_bar_graph(rental_counts, 'first_name', 'purchase_count', 'Customers', 'Rental Count', 'Customer Rental Counts', False)
 
-    data_3 = query_june_movie_counts(conn)
-    print(data_3.head())
-    plot_bar_graph(data_3, 'event_type', 'count', 'Event Type', 'Movie Count', 'Movie Rental Counts in June')
+    avg_rental_duration = query_avg_rental_duration(conn)
+    print(avg_rental_duration.head())
+    plot_bar_graph(avg_rental_duration, 'first_name', 'avg_hours_rented', 'Customers', 'Avg Hours Rented', 'Avg Hours Rented per Customer', False)
+
+    june_movie_counts = query_june_movie_counts(conn)
+    print(june_movie_counts.head())
+    plot_bar_graph(june_movie_counts, 'event_type', 'count', 'Event Type', 'Movie Count', 'Movie Rental Counts in June')
+
+    # Joseph's section
+    category_rental_counts = query_category_rental_counts(conn)
+    print(category_rental_counts.head())
+
+    avg_category_rental_rate = query_avg_category_rental_rate(conn)
+    print(avg_category_rental_rate)
+
+    film_category_ranking = query_film_category_ranking(conn, "Comedy")
+    print(film_category_ranking)
 
     conn.close()
