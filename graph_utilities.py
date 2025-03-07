@@ -25,7 +25,9 @@ def plot_bar_graph(data, x_axis, y_axis, x_label, y_label, title, visible_x=True
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=90)
+    # Set font size to 10
+    plt.xticks(fontsize=10)
 
     # Set y-axis limits if necessary
     if ymin is not None and ymax is not None:
@@ -40,7 +42,7 @@ def plot_bar_graph(data, x_axis, y_axis, x_label, y_label, title, visible_x=True
     plt.show()
 
 
-def plot_box_graph(data, x_axis, y_axis, x_label, y_label, title):
+def plot_box_graph(data, x_axis, y_axis, x_label, y_label, title, visible_x=True):
     """Function to plot a box plot
 
     :param data: Data to plot (DataFrame)
@@ -57,7 +59,10 @@ def plot_box_graph(data, x_axis, y_axis, x_label, y_label, title):
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
-    plt.xticks(ticks=range(len(data[x_axis])), labels=data[x_axis], rotation=45)
+
+    # Hide x-axis labels if necessary
+    if not visible_x:
+        plt.xticks(ticks=range(len(data[x_axis])), labels=['']*len(data[x_axis]))
     plt.tight_layout()
     plt.show()
 
