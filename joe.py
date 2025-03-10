@@ -14,7 +14,7 @@ def query_category_rental_counts(conn):
     JOIN sakila.inventory i ON f.film_id = i.film_id
     JOIN sakila.rental r ON i.inventory_id = r.inventory_id
     GROUP BY c.name
-    ORDER BY total_rentals DESC;
+    ORDER BY c.name ASC;
     """
 
     return pd.read_sql(query, conn)
@@ -31,7 +31,7 @@ def query_avg_category_rental_rate(conn):
     JOIN sakila.film_category fc ON c.category_id = fc.category_id 
     JOIN sakila.film f ON fc.film_id = f.film_id 
     GROUP BY c.name 
-    ORDER BY avg_rental_rate DESC;
+    ORDER BY c.name ASC;
     """
 
     return pd.read_sql(query, conn)
@@ -43,7 +43,7 @@ def query_film_category_ranking(conn, selected_category_name):
     Written by Joseph
     """
     query = """
-    SELECT f.title, COUNT(r.rental_id) AS rental_count 
+    SELECT f.title, COUNT(r.rental_id) AS rental_count
     FROM sakila.film f 
     JOIN sakila.film_category fc ON f.film_id = fc.film_id 
     JOIN sakila.category c ON fc.category_id = c.category_id 
@@ -52,7 +52,7 @@ def query_film_category_ranking(conn, selected_category_name):
     WHERE c.name = %s
     GROUP BY f.title 
     ORDER BY rental_count DESC 
-    LIMIT 5;
+    LIMIT 90;
     """
 
     return pd.read_sql(query, conn, params=(selected_category_name,))
