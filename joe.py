@@ -14,7 +14,7 @@ def query_category_rental_counts(conn):
     JOIN sakila.inventory i ON f.film_id = i.film_id
     JOIN sakila.rental r ON i.inventory_id = r.inventory_id
     GROUP BY c.name
-    ORDER BY c.name ASC;
+    ORDER BY total_rentals DESC;
     """
 
     return pd.read_sql(query, conn)
@@ -26,12 +26,12 @@ def query_avg_category_rental_rate(conn):
     Written by Joseph
     """
     query = """
-    SELECT c.name AS category_name, AVG(f.rental_rate) AS avg_rental_rate 
+    SELECT c.name AS category_name, AVG(f.rental_rate / f.rental_duration) AS avg_rental_rate 
     FROM sakila.category c 
     JOIN sakila.film_category fc ON c.category_id = fc.category_id 
     JOIN sakila.film f ON fc.film_id = f.film_id 
     GROUP BY c.name 
-    ORDER BY c.name ASC;
+    ORDER BY avg_rental_rate DESC;
     """
 
     return pd.read_sql(query, conn)

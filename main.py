@@ -51,15 +51,15 @@ if __name__ == "__main__":
     # Joseph's section
     category_rental_counts = query_category_rental_counts(conn)
     print(category_rental_counts.head())
-    plot_bar_graph(category_rental_counts, 'category_name', 'total_rentals', 'Category Name', 'Total Rentals', "Rentals by category")
+    plot_bar_graph(category_rental_counts, 'category_name', 'total_rentals', 'Category Name', 'Total Rentals', "Total rentals per category")
 
     avg_category_rental_rate = query_avg_category_rental_rate(conn)
     plot_bar_graph(avg_category_rental_rate, 'category_name', 'avg_rental_rate', 'Category Name', 'Average Rental Rate', 'Rental rate by category')
     print(avg_category_rental_rate)
 
-    top_classic_films = query_film_category_ranking(conn, "Classics")
-    print(top_classic_films)
-    plot_bar_graph(top_classic_films, 'title', 'rental_count', 'Title', 'Rental Count', "Top rented Classic films")
+    top_music_films = query_film_category_ranking(conn, "Music")
+    print(top_music_films)
+    plot_bar_graph(top_music_films, 'title', 'rental_count', 'Title', 'Rental Count', "Top rented music films")
 
     top_travel_films = query_film_category_ranking(conn, "Travel")
     print(top_travel_films)
